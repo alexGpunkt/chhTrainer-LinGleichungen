@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Lineare Gleichungen – Lerntrainer</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#162033;
+      --muted:#64748b;
+      --primary:#2563eb;
+      --primary2:#1d4ed8;
+      --good:#16a34a;
+      --bad:#dc2626;
+      --warn:#f59e0b;
+      --line:#e2e8f0;
+      --shadow:0 18px 45px rgba(15,23,42,.12);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.14), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(22,163,74,.12), transparent 40%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    button,input{
+      font:inherit;
+    }
+
+    .app{
+      width:min(980px,100%);
+      margin:0 auto;
+      padding:16px;
+      padding-bottom:90px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:linear-gradient(to bottom, rgba(245,247,251,.96), rgba(245,247,251,.76));
+      backdrop-filter:blur(10px);
+      padding:12px 0;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:clamp(1.15rem, 4vw, 1.8rem);
+      line-height:1.05;
+      letter-spacing:-.03em;
+    }
+
+    .brand span{
+      color:var(--muted);
+      font-size:.9rem;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .icon-btn{
+      border:0;
+      border-radius:999px;
+      background:var(--card);
+      color:var(--text);
+      width:48px;
+      height:48px;
+      box-shadow:0 8px 22px rgba(15,23,42,.12);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      flex:none;
+    }
+
+    .icon-btn:active{transform:scale(.97)}
+
+    .card{
+      background:rgba(255,255,255,.94);
+      border:1px solid rgba(226,232,240,.9);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .stats{
+      display:none;
+    }
+
+    .drawer-stats{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .stat{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:12px;
+      min-height:76px;
+    }
+
+    .drawer-stats .stat{
+      min-height:68px;
+      box-shadow:0 6px 16px rgba(15,23,42,.06);
+    }
+
+    .stat b{
+      display:block;
+      font-size:1.2rem;
+    }
+
+    .stat small{
+      color:var(--muted);
+    }
+
+    .progress-wrap{
+      background:#e5e7eb;
+      border-radius:999px;
+      height:14px;
+      overflow:hidden;
+      margin:12px 0 6px;
+    }
+
+    .progress-bar{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,var(--primary),#22c55e);
+      border-radius:999px;
+      transition:.35s ease;
+    }
+
+    .task-meta{
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.85rem;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .badge.fraction{
+      background:#fff7ed;
+      color:#c2410c;
+    }
+
+    .equation-box{
+      border-radius:24px;
+      border:2px solid #dbeafe;
+      background:linear-gradient(180deg,#eff6ff,#fff);
+      padding:24px 16px;
+      text-align:center;
+      margin:14px 0;
+    }
+
+    .equation{
+      font-size:clamp(1.7rem, 7vw, 3.2rem);
+      font-weight:800;
+      letter-spacing:-.04em;
+      line-height:1.25;
+      overflow-wrap:anywhere;
+    }
+
+    .instruction{
+      color:var(--muted);
+      text-align:center;
+      margin-top:10px;
+    }
+
+    .answer-row{
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+      margin:18px 0 10px;
+    }
+
+    .answer-row label{
+      position:absolute;
+      left:-10000px;
+    }
+
+    #answerInput{
+      width:100%;
+      border:2px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      font-size:1.25rem;
+      outline:none;
+      background:#fff;
+    }
+
+    #answerInput:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+
+    #answerInput[readonly]{
+      cursor:pointer;
+      caret-color:transparent;
+      background:#fff;
+    }
+
+    body.pad-open{
+      padding-bottom:310px;
+    }
+
+    .num-pad{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:70;
+      background:rgba(255,255,255,.98);
+      border-top:1px solid var(--line);
+      box-shadow:0 -18px 45px rgba(15,23,42,.18);
+      transform:translateY(105%);
+      transition:.22s ease;
+      padding:12px max(12px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    }
+
+    .num-pad.open{
+      transform:translateY(0);
+    }
+
+    .num-pad-inner{
+      width:min(620px,100%);
+      margin:0 auto;
+    }
+
+    .num-pad-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .num-pad-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+    }
+
+    .num-pad-grid button{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#f8fafc;
+      min-height:50px;
+      font-size:1.15rem;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .num-pad-grid button:active{
+      transform:scale(.98);
+    }
+
+    .num-pad-grid .wide{
+      grid-column:span 2;
+    }
+
+    .num-pad-grid .minus{
+      background:#fff7ed;
+      color:#c2410c;
+    }
+
+    .num-pad-grid .ok{
+      background:var(--primary);
+      color:#fff;
+      border-color:var(--primary);
+    }
+
+    .num-pad-grid .clear{
+      background:#fff1f2;
+      color:#be123c;
+    }
+
+    .primary-btn,.secondary-btn,.danger-btn{
+      border:0;
+      border-radius:18px;
+      padding:14px 16px;
+      font-weight:800;
+      cursor:pointer;
+      min-height:54px;
+    }
+
+    .primary-btn{
+      background:var(--primary);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(37,99,235,.25);
+    }
+
+    .primary-btn:hover{background:var(--primary2)}
+    .primary-btn:active,.secondary-btn:active,.danger-btn:active{transform:translateY(1px)}
+
+    .secondary-btn{
+      background:#f8fafc;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+
+    .danger-btn{
+      background:#fff1f2;
+      color:#be123c;
+      border:1px solid #fecdd3;
+    }
+
+    .feedback{
+      border-radius:18px;
+      padding:12px 14px;
+      margin-top:10px;
+      display:none;
+      line-height:1.45;
+    }
+
+    .feedback.good{
+      display:block;
+      background:#dcfce7;
+      color:#166534;
+      border:1px solid #bbf7d0;
+    }
+
+    .feedback.bad{
+      display:block;
+      background:#fee2e2;
+      color:#991b1b;
+      border:1px solid #fecaca;
+    }
+
+    .feedback.info{
+      display:block;
+      background:#eff6ff;
+      color:#1e40af;
+      border:1px solid #bfdbfe;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .controls button{
+      flex:1 1 170px;
+    }
+
+    .skip-panel{
+      display:none;
+      margin-top:14px;
+      border:1px dashed #fdba74;
+      background:#fff7ed;
+      color:#9a3412;
+      border-radius:18px;
+      padding:12px;
+    }
+
+    .skip-panel.show{display:block}
+
+    .solution{
+      margin-top:10px;
+      padding:12px;
+      border-radius:16px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      color:#334155;
+      display:none;
+    }
+
+    .solution.show{display:block}
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.48);
+      z-index:80;
+      display:none;
+    }
+
+    .overlay.show{display:block}
+
+    .drawer{
+      position:fixed;
+      top:0;
+      right:0;
+      width:min(390px,92vw);
+      height:100vh;
+      background:#fff;
+      z-index:90;
+      transform:translateX(105%);
+      transition:.25s ease;
+      box-shadow:-25px 0 60px rgba(15,23,42,.28);
+      padding:18px;
+      overflow:auto;
+    }
+
+    .drawer.open{transform:translateX(0)}
+
+    .drawer-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .drawer h2{
+      margin:0;
+      font-size:1.3rem;
+    }
+
+    .menu-grid{
+      display:grid;
+      gap:12px;
+    }
+
+    .menu-card{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:14px;
+      background:#f8fafc;
+    }
+
+    .menu-card h3{
+      margin:0 0 8px;
+      font-size:1rem;
+    }
+
+    #qrBox{
+      display:none;
+      text-align:center;
+      margin-top:12px;
+    }
+
+    #qrBox.show{display:block}
+
+    #qrImg{
+      width:220px;
+      height:220px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+      padding:8px;
+    }
+
+    .calc{
+      display:none;
+      margin-top:12px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:12px;
+      background:#fff;
+    }
+
+    .calc.show{display:block}
+
+    .calc-display{
+      width:100%;
+      border:2px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      font-size:1.25rem;
+      text-align:right;
+      margin-bottom:10px;
+    }
+
+    .calc-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+    }
+
+    .calc-grid button{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#f8fafc;
+      min-height:46px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .calc-grid button.op{
+      background:#eff6ff;
+      color:#1d4ed8;
+    }
+
+    .calc-grid button.eq{
+      background:var(--primary);
+      color:#fff;
+      grid-column:span 2;
+    }
+
+    .calc-grid button.clear{
+      background:#fff1f2;
+      color:#be123c;
+    }
+
+    .login{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.28), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(22,163,74,.20), transparent 42%),
+        #0f172a;
+      z-index:120;
+      display:grid;
+      place-items:center;
+      padding:16px;
+    }
+
+    .login-card{
+      width:min(480px,100%);
+      background:#fff;
+      border-radius:28px;
+      box-shadow:0 30px 80px rgba(0,0,0,.35);
+      padding:22px;
+    }
+
+    .login-card h2{
+      margin:.2rem 0 .4rem;
+      font-size:1.7rem;
+      letter-spacing:-.04em;
+    }
+
+    .login-card p{
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .login-card input{
+      width:100%;
+      border:2px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      font-size:1.1rem;
+      margin:12px 0;
+    }
+
+    .mini{
+      color:var(--muted);
+      font-size:.82rem;
+      line-height:1.35;
+    }
+
+    .kbd{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      background:#f1f5f9;
+      padding:2px 6px;
+      border-radius:8px;
+    }
+
+    @media (max-width:640px){
+      .app{padding:12px 10px 90px}
+      .card{padding:14px}
+      .answer-row{flex-direction:column}
+      .primary-btn,.secondary-btn,.danger-btn{width:100%}
+      header{padding:8px 0}
+      .equation-box{padding:22px 10px}
+      body.pad-open{padding-bottom:330px}
+    }
+  
+    /* Fixierter Arbeitsbereich bei geöffnetem Eingabefeld */
+    body.keypad-open{
+      overflow:hidden;
+      height:100dvh;
+    }
+
+    body.keypad-open .app{
+      height:100dvh;
+      overflow:hidden;
+      padding-bottom:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    body.keypad-open header{
+      flex:0 0 auto;
+    }
+
+    body.keypad-open .card{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      top:76px;
+      width:min(960px, calc(100vw - 20px));
+      max-height:calc(100dvh - 76px);
+      overflow:hidden;
+      z-index:60;
+      display:flex;
+      flex-direction:column;
+      padding:12px;
+    }
+
+    body.keypad-open .progress-wrap{
+      flex:0 0 auto;
+      margin:0 0 8px;
+      height:10px;
+    }
+
+    body.keypad-open .equation-box{
+      flex:0 0 auto;
+      margin:6px 0 8px;
+      padding:14px 8px;
+      border-radius:18px;
+    }
+
+    body.keypad-open .equation{
+      font-size:clamp(1.35rem, 6vw, 2.35rem);
+      line-height:1.15;
+    }
+
+    body.keypad-open .instruction{
+      font-size:.85rem;
+      margin-top:6px;
+    }
+
+    body.keypad-open #answerForm{
+      flex:0 0 auto;
+    }
+
+    body.keypad-open .answer-row{
+      margin:8px 0;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    body.keypad-open #answerInput{
+      min-height:50px;
+      padding:12px;
+      font-size:1.15rem;
+    }
+
+    body.keypad-open .answer-row .primary-btn{
+      width:100%;
+      min-height:48px;
+      padding:10px 12px;
+    }
+
+    body.keypad-open .controls{
+      flex:0 0 auto;
+      margin-top:8px;
+      gap:8px;
+    }
+
+    body.keypad-open #newVariantBtn{
+      width:100%;
+      min-height:48px;
+      padding:10px 12px;
+    }
+
+    body.keypad-open #feedback,
+    body.keypad-open #solution,
+    body.keypad-open #skipPanel{
+      flex:0 0 auto;
+      max-height:70px;
+      overflow:auto;
+      margin-top:6px;
+      padding:8px 10px;
+      font-size:.9rem;
+    }
+
+    body.keypad-open .number-pad,
+    body.keypad-open .keypad,
+    body.keypad-open #numberPad,
+    body.keypad-open #keypad,
+    body.keypad-open .input-panel,
+    body.keypad-open #inputPanel{
+      position:fixed !important;
+      left:50% !important;
+      transform:translateX(-50%) !important;
+      right:auto !important;
+      bottom:0 !important;
+      width:min(960px, 100vw) !important;
+      max-height:42dvh !important;
+      overflow:auto !important;
+      z-index:70 !important;
+      border-radius:22px 22px 0 0 !important;
+      box-shadow:0 -16px 45px rgba(15,23,42,.25) !important;
+    }
+
+    body.keypad-open .card:has(+ *) {
+      overscroll-behavior:contain;
+    }
+
+    @media (max-width:640px){
+      body.keypad-open .card{
+        top:64px;
+        width:calc(100vw - 16px);
+        max-height:calc(58dvh - 4px);
+      }
+
+      body.keypad-open .equation-box{
+        padding:12px 8px;
+      }
+
+      body.keypad-open .instruction{
+        display:none;
+      }
+
+      body.keypad-open .controls{
+        display:block;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div id="login" class="login">
+    <div class="login-card">
+      <h2>Lineare Gleichungen</h2>
+      <p>Gib deinen Namen oder ein Kürzel ein. Eine Namensprüfung findet nur statt, wenn für diese Lernaktivität im Lehrer-Dashboard eine Namensliste gespeichert wurde.</p>
+      <input id="usernameInput" autocomplete="name" placeholder="Name oder Kürzel" />
+      <div id="loginError" class="feedback bad" style="display:none;margin:8px 0;"></div>
+      <button id="startBtn" class="primary-btn">Training starten</button>
+      <p class="mini">Hinweis: In dieser Datei ist nur ein Platzhalter für Tracking enthalten. Für echte Speicherung braucht ihr später einen eigenen Server-Endpunkt mit Datenschutz-Information.</p>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <h2>Menü</h2>
+      <button class="icon-btn" id="closeMenuBtn" aria-label="Menü schließen">✕</button>
+    </div>
+
+    <section class="drawer-stats" aria-label="Fortschritt und Status">
+      <div class="stat">
+        <b id="typeNo">1</b>
+        <small>Aufgabentyp</small>
+      </div>
+      <div class="stat">
+        <b id="attemptNo">1/2</b>
+        <small>Versuch</small>
+      </div>
+      <div class="stat">
+        <b id="streakNo">0/2</b>
+        <small>richtig in Folge</small>
+      </div>
+      <div class="stat">
+        <b id="doneNo">0%</b>
+        <small>Fortschritt</small>
+      </div>
+    </section>
+
+    <div class="menu-grid">
+      <div class="menu-card">
+        <h3>QR-Code zur aktuellen Seite</h3>
+        <p class="mini">Funktioniert besonders gut, wenn die Datei online auf IServ, Nextcloud, Moodle oder einer Schulwebseite liegt.</p>
+        <button class="secondary-btn" id="showQrBtn">QR-Code anzeigen</button>
+        <div id="qrBox">
+          <img id="qrImg" alt="QR-Code zur aktuellen Seite" />
+          <p class="mini" id="currentUrlText"></p>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Taschenrechner</h3>
+        <button class="secondary-btn" id="toggleCalcBtn">Taschenrechner öffnen</button>
+        <div class="calc" id="calc">
+          <input id="calcDisplay" class="calc-display" readonly />
+          <div class="calc-grid">
+            <button class="clear" data-calc="C">C</button>
+            <button data-calc="(">(</button>
+            <button data-calc=")">)</button>
+            <button class="op" data-calc="/">÷</button>
+            <button data-calc="7">7</button>
+            <button data-calc="8">8</button>
+            <button data-calc="9">9</button>
+            <button class="op" data-calc="*">×</button>
+            <button data-calc="4">4</button>
+            <button data-calc="5">5</button>
+            <button data-calc="6">6</button>
+            <button class="op" data-calc="-">−</button>
+            <button data-calc="1">1</button>
+            <button data-calc="2">2</button>
+            <button data-calc="3">3</button>
+            <button class="op" data-calc="+">+</button>
+            <button data-calc="0">0</button>
+            <button data-calc=",">,</button>
+            <button class="eq" data-calc="=">=</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <h3>Fortschritt</h3>
+        <p id="menuProgress" class="mini"></p>
+        <button class="danger-btn" id="resetBtn">Fortschritt zurücksetzen</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app">
+    <header>
+      <div class="brand">
+        <h1>Lineare Gleichungen</h1>
+        <span id="helloLine">Training</span>
+      </div>
+      <button class="icon-btn" id="menuBtn" aria-label="Menü öffnen">☰</button>
+    </header>
+
+    <section class="card">
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="equation-box">
+        <div class="equation" id="equation">x + 1 = 5</div>
+        <div class="instruction">Löse nach <b>x</b>. Gib nur den Wert von x ein.</div>
+      </div>
+
+      <form id="answerForm">
+        <div class="answer-row">
+          <label for="answerInput">Lösung</label>
+          <input id="answerInput" inputmode="none" autocomplete="off" readonly placeholder="Tippen zum Eingeben: z. B. 4, -2 oder 1,5" />
+          <button class="primary-btn" type="submit">Prüfen</button>
+        </div>
+      </form>
+
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+
+      <div class="skip-panel" id="skipPanel">
+        Dieser Aufgabentyp gehört zur Bruchrechnung. Du darfst ihn überspringen.
+        <div class="controls">
+          <button class="secondary-btn" id="skipBtn" type="button">Bruch-Aufgabe überspringen</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="secondary-btn" id="newVariantBtn" type="button">Neue Variante dieses Typs</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="num-pad" id="numPad" aria-hidden="true">
+    <div class="num-pad-inner">
+      <div class="num-pad-head">
+        <strong>Lösung eingeben</strong>
+        <button class="secondary-btn" id="closePadBtn" type="button" style="min-height:38px;padding:8px 12px;border-radius:14px;">schließen</button>
+      </div>
+      <div class="num-pad-grid">
+        <button type="button" data-num="7">7</button>
+        <button type="button" data-num="8">8</button>
+        <button type="button" data-num="9">9</button>
+        <button type="button" class="clear" data-action="back">⌫</button>
+        <button type="button" data-num="4">4</button>
+        <button type="button" data-num="5">5</button>
+        <button type="button" data-num="6">6</button>
+        <button type="button" class="minus" data-action="neg">− / +</button>
+        <button type="button" data-num="1">1</button>
+        <button type="button" data-num="2">2</button>
+        <button type="button" data-num="3">3</button>
+        <button type="button" class="clear" data-action="clear">C</button>
+        <button type="button" data-num="0">0</button>
+        <button type="button" data-num=",">,</button>
+        <button type="button" class="wide ok" data-action="submit">Prüfen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const $ = (id) => document.getElementById(id);
+    function setTextIfExists(id, value){
+      const el = $(id);
+      if(el) el.textContent = value;
+    }
+    function setClassIfExists(id, value){
+      const el = $(id);
+      if(el) el.className = value;
+    }
+
+    function randInt(min, max){
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function choice(arr){
+      return arr[randInt(0, arr.length - 1)];
+    }
+
+    function gcd(a,b){
+      a = Math.abs(a); b = Math.abs(b);
+      while(b){ const t=b; b=a%b; a=t; }
+      return a || 1;
+    }
+
+    function cleanNumber(n){
+      if(Math.abs(n) < 1e-10) return 0;
+      return Math.round(n * 100000000) / 100000000;
+    }
+
+    function fmtNum(n){
+      n = cleanNumber(n);
+      if(Number.isInteger(n)) return String(n);
+      return String(n).replace(".", ",");
+    }
+
+    function fmtCoeff(a){
+      if(a === 1) return "x";
+      if(a === -1) return "-x";
+      return `${a}x`;
+    }
+
+    function term(c, first=false){
+      if(c === 0) return first ? "0" : "";
+      if(first) return c < 0 ? `- ${Math.abs(c)}` : `${c}`;
+      return c < 0 ? ` - ${Math.abs(c)}` : ` + ${c}`;
+    }
+
+    function lin(a,b){
+      let s = "";
+      if(a !== 0) s += fmtCoeff(a);
+      if(b !== 0 || s === "") s += term(b, s === "");
+      return s.replace("+ -","- ");
+    }
+
+    function frac(n,d){
+      return `<span style="white-space:nowrap"><sup>${n}</sup>&frasl;<sub>${d}</sub></span>`;
+    }
+
+    function decimalComma(n){
+      return String(n).replace(".", ",");
+    }
+
+    function solveText(x){
+      return `Lösung: x = ${fmtNum(x)}`;
+    }
+
+    function parseAnswer(s){
+      if(!s) return NaN;
+      s = String(s).trim().replace(/\s+/g,"").replace(",", ".");
+      if(s.includes("/")){
+        const parts = s.split("/");
+        if(parts.length === 2){
+          const a = Number(parts[0]);
+          const b = Number(parts[1]);
+          if(Number.isFinite(a) && Number.isFinite(b) && b !== 0) return a / b;
+        }
+      }
+      return Number(s);
+    }
+
+    function makeTask(type, category, isFraction, generator){
+      return { type, category, isFraction, generator };
+    }
+
+    function task(eq, ans, steps=""){
+      return { eq, ans: cleanNumber(ans), solution: steps || solveText(ans) };
+    }
+
+    const types = [];
+
+    function add(type, category, isFraction, gen){ types.push(makeTask(type, category, isFraction, gen)); }
+
+    // 1-5 Variable allein
+    for(let i=1;i<=5;i++){
+      add(i,"Variable allein",false,()=> {
+        const x = choice([randInt(-12,12), randInt(13,30), 0]);
+        return task(`x = ${fmtNum(x)}`, x);
+      });
+    }
+
+    // 6-10 Addition
+    for(let i=6;i<=10;i++){
+      add(i,"Einfache Addition",false,()=> {
+        const a = randInt(1,12), x = randInt(-5,20), r = x + a;
+        return task(`x + ${a} = ${fmtNum(r)}`, x, `Gegenrechnung: ${fmtNum(r)} - ${a} = ${fmtNum(x)}. Also x = ${fmtNum(x)}.`);
+      });
+    }
+
+    // 11-15 Subtraktion
+    for(let i=11;i<=15;i++){
+      add(i,"Einfache Subtraktion",false,()=> {
+        const a = randInt(1,12), x = randInt(-5,22), r = x - a;
+        return task(`x - ${a} = ${fmtNum(r)}`, x, `Gegenrechnung: ${fmtNum(r)} + ${a} = ${fmtNum(x)}. Also x = ${fmtNum(x)}.`);
+      });
+    }
+
+    // 16-20 Ergebnisse negativ
+    for(let i=16;i<=20;i++){
+      add(i,"Negative Ergebnisse",false,()=> {
+        const plus = Math.random() < .5;
+        const a = randInt(3,14);
+        const x = randInt(-14,2);
+        const r = plus ? x + a : x - a;
+        return task(`x ${plus?"+":"-"} ${a} = ${fmtNum(r)}`, x);
+      });
+    }
+
+    // 21-25 Multiplikation
+    for(let i=21;i<=25;i++){
+      add(i,"Einfache Multiplikation",false,()=> {
+        const a = randInt(2,12), x = randInt(-9,12), r = a*x;
+        return task(`${a}x = ${fmtNum(r)}`, x, `${fmtNum(r)} : ${a} = ${fmtNum(x)}. Also x = ${fmtNum(x)}.`);
+      });
+    }
+
+    // 26-30 Division, nicht als überspringbare Bruchrechnung markiert, da Grundtyp Division
+    for(let i=26;i<=30;i++){
+      add(i,"Einfache Division",false,()=> {
+        const d = randInt(2,12), x = randInt(-9,12)*d;
+        return task(`${frac("x",d)} = ${fmtNum(x/d)}`, x, `${fmtNum(x/d)} · ${d} = ${fmtNum(x)}. Also x = ${fmtNum(x)}.`);
+      });
+    }
+
+    // 31-35 negative Faktoren
+    for(let i=31;i<=35;i++){
+      add(i,"Negative Faktoren",false,()=> {
+        const a = -randInt(2,12), x = randInt(-9,12), r = a*x;
+        return task(`${a}x = ${fmtNum(r)}`, x);
+      });
+    }
+
+    // 36-40 ax+b
+    for(let i=36;i<=40;i++){
+      add(i,"Zwei Schritte mit Addition",false,()=> {
+        const a = randInt(2,9), b = randInt(1,12), x = randInt(-6,14);
+        return task(`${a}x + ${b} = ${fmtNum(a*x+b)}`, x);
+      });
+    }
+
+    // 41-45 ax-b
+    for(let i=41;i<=45;i++){
+      add(i,"Zwei Schritte mit Subtraktion",false,()=> {
+        const a = randInt(2,9), b = randInt(1,12), x = randInt(-6,14);
+        return task(`${a}x - ${b} = ${fmtNum(a*x-b)}`, x);
+      });
+    }
+
+    // 46-50 negative Lösungen
+    for(let i=46;i<=50;i++){
+      add(i,"Negative Lösungen",false,()=> {
+        const a = randInt(2,9), b = randInt(1,15), x = -randInt(1,12);
+        const sign = Math.random()<.5 ? "+" : "-";
+        const r = sign==="+" ? a*x+b : a*x-b;
+        return task(`${a}x ${sign} ${b} = ${fmtNum(r)}`, x);
+      });
+    }
+
+    // 51-55 Variable beide Seiten sehr einfach
+    for(let i=51;i<=55;i++){
+      add(i,"Variable auf beiden Seiten",false,()=> {
+        const a = randInt(2,5), x = randInt(1,12), b = (a-1)*x;
+        return task(`x + ${b} = ${a}x`, x);
+      });
+    }
+
+    // 56-60 Variablen beide Seiten mit Zahlen
+    for(let i=56;i<=60;i++){
+      add(i,"Beide Seiten mit Zahlen",false,()=> {
+        let a = randInt(2,8), c = randInt(1,a-1), x = randInt(-5,12), b = randInt(-8,10);
+        let d = a*x + b - c*x;
+        return task(`${lin(a,b)} = ${lin(c,d)}`, x);
+      });
+    }
+
+    // 61-65 negative Zahlen beide Seiten
+    for(let i=61;i<=65;i++){
+      add(i,"Negative Zahlen auf beiden Seiten",false,()=> {
+        let a = randInt(2,8), c = randInt(1,a-1), x = randInt(-8,10);
+        let b = -randInt(1,15);
+        let d = a*x + b - c*x;
+        return task(`${lin(a,b)} = ${lin(c,d)}`, x);
+      });
+    }
+
+    // 66-70 Klammern positiv
+    for(let i=66;i<=70;i++){
+      add(i,"Klammern mit positivem Faktor",false,()=> {
+        const a = randInt(2,7), b = randInt(1,8), x = randInt(-5,12);
+        return task(`${a}(x + ${b}) = ${fmtNum(a*(x+b))}`, x);
+      });
+    }
+
+    // 71-75 Klammern mit Subtraktion
+    for(let i=71;i<=75;i++){
+      add(i,"Klammern mit Subtraktion",false,()=> {
+        const a = randInt(2,7), b = randInt(1,8), x = randInt(-4,15);
+        return task(`${a}(x - ${b}) = ${fmtNum(a*(x-b))}`, x);
+      });
+    }
+
+    // 76-80 Klammern beide Seiten
+    for(let i=76;i<=80;i++){
+      add(i,"Klammern auf beiden Seiten",false,()=> {
+        let a = randInt(2,6), c = randInt(1,5);
+        if(a===c) c++;
+        const b = randInt(-4,6), d = randInt(-5,5), x = randInt(-5,10);
+        const rhsConst = a*(x+b) - c*x;
+        const right = Math.random()<.5 ? `${c}x ${term(rhsConst)}` : `${c}(x ${d>=0?"+":"-"} ${Math.abs(d)}) ${term(rhsConst - c*d)}`;
+        return task(`${a}(x ${b>=0?"+":"-"} ${Math.abs(b)}) = ${right}`, x);
+      });
+    }
+
+    // 81-85 Terme zusammenfassen
+    for(let i=81;i<=85;i++){
+      add(i,"Terme zusammenfassen",false,()=> {
+        const a = randInt(1,5), c = randInt(1,5), b = randInt(-6,8), x = randInt(-5,12);
+        return task(`${a}x + ${c}x ${term(b)} = ${fmtNum((a+c)*x+b)}`, x);
+      });
+    }
+
+    // 86-90 Terme beide Seiten zusammenfassen
+    for(let i=86;i<=90;i++){
+      add(i,"Terme auf beiden Seiten",false,()=> {
+        const a=randInt(2,7), b=randInt(1,5), c=randInt(1,5), x=randInt(-5,10), k=randInt(-8,8);
+        const leftCoeff = a+b;
+        const rhsConst = leftCoeff*x + k - c*x;
+        return task(`${a}x + ${b}x ${term(k)} = ${c}x ${term(rhsConst)}`, x);
+      });
+    }
+
+    // 91-100 Brüche überspringbar
+    for(let i=91;i<=100;i++){
+      add(i,"Bruchrechnung",true,()=> {
+        const d = randInt(2,10), b = randInt(-5,7), x = randInt(-8,12)*d;
+        const r = x/d + b;
+        return task(`${frac("x",d)} ${b>=0?"+":"-"} ${Math.abs(b)} = ${fmtNum(r)}`, x);
+      });
+    }
+
+    // 101-105 Dezimalzahlen
+    for(let i=101;i<=105;i++){
+      add(i,"Dezimalzahlen",false,()=> {
+        const a = choice([0.2,0.25,0.5,1.5,2.5,3.5]);
+        const b = choice([0,1,2,-1,-2,3]);
+        const x = randInt(-8,12);
+        return task(`${decimalComma(a)}x ${b>=0?"+":"-"} ${Math.abs(b)} = ${fmtNum(a*x+b)}`, x);
+      });
+    }
+
+    // 106-110 negative Klammern
+    for(let i=106;i<=110;i++){
+      add(i,"Negative Klammern",false,()=> {
+        const a = -randInt(1,4), b = randInt(-5,6), x = randInt(-8,10);
+        return task(`${a===-1?"-":a}(x ${b>=0?"+":"-"} ${Math.abs(b)}) = ${fmtNum(a*(x+b))}`, x);
+      });
+    }
+
+    // 111-115 Klammern und Variablen
+    for(let i=111;i<=115;i++){
+      add(i,"Klammern und Variable beidseitig",false,()=> {
+        let a=randInt(2,6), c=randInt(1,5);
+        if(a===c)c++;
+        const b=randInt(-5,6), k=randInt(-8,8), x=randInt(-6,10);
+        const d = a*(x+b)+k-c*x;
+        return task(`${a}(x ${b>=0?"+":"-"} ${Math.abs(b)}) ${term(k)} = ${c}x ${term(d)}`, x);
+      });
+    }
+
+    // 116-120 mehrere Klammern
+    for(let i=116;i<=120;i++){
+      add(i,"Mehrere Klammern",false,()=> {
+        const a=randInt(2,5), c=randInt(2,5), b=randInt(-4,6), d=randInt(-5,5), x=randInt(-5,10);
+        const r = a*(x+b)+c*(x+d);
+        return task(`${a}(x ${b>=0?"+":"-"} ${Math.abs(b)}) + ${c}(x ${d>=0?"+":"-"} ${Math.abs(d)}) = ${fmtNum(r)}`, x);
+      });
+    }
+
+    // 121-130 Brüche mit Klammern überspringbar
+    for(let i=121;i<=130;i++){
+      add(i,"Bruchrechnung mit Klammern",true,()=> {
+        const d = randInt(2,8), a=randInt(1,4), b=randInt(-6,8), x = randInt(-6,12);
+        const r = (a*x+b)/d;
+        return task(`${frac(`${a}x ${b>=0?"+":"-"} ${Math.abs(b)}`,d)} = ${fmtNum(r)}`, x);
+      });
+    }
+
+    // 131-135 Dezimalzahlen und Klammern
+    for(let i=131;i<=135;i++){
+      add(i,"Dezimalzahlen mit Klammern",false,()=> {
+        const a = choice([0.2,0.25,0.5,1.5,2.5]);
+        const b = randInt(-5,6), x = randInt(-8,12);
+        return task(`${decimalComma(a)}(x ${b>=0?"+":"-"} ${Math.abs(b)}) = ${fmtNum(a*(x+b))}`, x);
+      });
+    }
+
+    // 136-137 schwere ohne Brüche
+    for(let i=136;i<=137;i++){
+      add(i,"Sehr schwere Gleichungen",false,()=> {
+        let a=randInt(2,5), b=randInt(-6,6), c=randInt(2,5), d=randInt(-6,6), e=randInt(1,5);
+        const x=randInt(-6,10);
+        const left = a*(2*x+b)-c*(x+d);
+        const restConst = left - e*x;
+        return task(`${a}(2x ${b>=0?"+":"-"} ${Math.abs(b)}) - ${c}(x ${d>=0?"+":"-"} ${Math.abs(d)}) = ${e}x ${term(restConst)}`, x);
+      });
+    }
+
+    // 138-139 Brüche
+    for(let i=138;i<=139;i++){
+      add(i,"Sehr schwere Bruchgleichungen",true,()=> {
+        const d1=choice([2,3,4,5]), d2=choice([2,3,4,6]), a=randInt(1,4), b=randInt(-5,5), c=randInt(1,4), e=randInt(-5,5), x=randInt(-5,10);
+        const r = (a*x+b)/d1 + (c*x+e)/d2;
+        return task(`${frac(`${a}x ${b>=0?"+":"-"} ${Math.abs(b)}`,d1)} + ${frac(`${c}x ${e>=0?"+":"-"} ${Math.abs(e)}`,d2)} = ${fmtNum(r)}`, x);
+      });
+    }
+
+    // 140 schwer ohne Brüche
+    add(140,"Sehr schwere Gleichungen",false,()=> {
+      const a=randInt(2,5), b=randInt(-6,6), c=randInt(2,5), d=randInt(-6,6), e=randInt(2,5), f=randInt(-6,6), x=randInt(-6,10);
+      const left = a*(x+b)-c*(x+d);
+      const rhsConst = left - e*(x+f);
+      return task(`${a}(x ${b>=0?"+":"-"} ${Math.abs(b)}) - ${c}(x ${d>=0?"+":"-"} ${Math.abs(d)}) = ${e}(x ${f>=0?"+":"-"} ${Math.abs(f)}) ${term(rhsConst)}`, x);
+    });
+
+    // 141-145 extreme Brüche
+    for(let i=141;i<=145;i++){
+      add(i,"Extreme Bruchgleichungen",true,()=> {
+        const d1=choice([3,4,5,6]), d2=choice([4,5,6,8]), d3=choice([2,3,4]);
+        const a=randInt(1,4), b=randInt(-6,6), c=randInt(1,4), d=randInt(-6,6), e=randInt(1,4), f=randInt(-6,6);
+        const x=randInt(-5,10);
+        const left = (a*x+b)/d1 - (c*x+d)/d2;
+        const rhsConst = left - (e*x+f)/d3;
+        return task(`${frac(`${a}x ${b>=0?"+":"-"} ${Math.abs(b)}`,d1)} - ${frac(`${c}x ${d>=0?"+":"-"} ${Math.abs(d)}`,d2)} = ${frac(`${e}x ${f>=0?"+":"-"} ${Math.abs(f)}`,d3)} ${term(rhsConst)}`, x);
+      });
+    }
+
+    const state = {
+      username:"",
+      currentIndex:0,
+      attempts:0,
+      streak:0,
+      currentTask:null,
+      totalSolvedTypes:0,
+      trackingQueue:[]
+    };
+
+    function storageKey(){
+      return "linearTrainerProgress_" + (state.username || "guest");
+    }
+
+    function save(){
+      const data = {
+        currentIndex: state.currentIndex,
+        streak: state.streak,
+        totalSolvedTypes: state.totalSolvedTypes
+      };
+      localStorage.setItem(storageKey(), JSON.stringify(data));
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(storageKey());
+        if(!raw) return;
+        const data = JSON.parse(raw);
+        state.currentIndex = Math.min(Math.max(data.currentIndex || 0, 0), types.length-1);
+        state.streak = data.streak || 0;
+        state.totalSolvedTypes = data.totalSolvedTypes || 0;
+      }catch(e){}
+    }
+
+    // KlassenMonitor-Tracking nach dem Muster der angehängten tracker.js-Datei.
+    // Es wird dieselbe Supabase-Tabelle active_sessions verwendet.
+    const KM_CONFIG = {
+      SUPABASE_URL: 'https://sntbedutlztfsyzlxqfl.supabase.co',
+      SUPABASE_KEY: 'sb_publishable_nWFLSFS56Pg6QLeCz1IC1Q_3P7KqD80',
+      APP_NAME: 'Lineare Gleichungen Lerntrainer',
+      PING_INTERVAL_MS: 30000,
+      STORAGE_CLIENT_ID: 'km_client_id',
+      STORAGE_NAME: 'km_student_name',
+      VALIDATE_ALLOWED_NAMES: true
+    };
+
+    const kmTracker = {
+      clientId: null,
+      sessionId: null,
+      studentName: '',
+      intervalId: null,
+      leaveTimer: null,
+      started: false
+    };
+
+    function kmSlugify(text) {
+      return String(text)
+        .toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    }
+
+    function kmCreateId() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return 'id_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+    }
+
+    function kmShortAction(action, payload = {}) {
+      const type = payload.taskType || types[state.currentIndex]?.type || '-';
+      const attempt = payload.attempt ? `_v${payload.attempt}` : '';
+      const correct = payload.correct === true ? '_richtig' : payload.correct === false ? '_falsch' : '';
+      const extra = payload.isFraction ? '_bruch' : '';
+      return `${action}_t${type}${attempt}${correct}${extra}`.slice(0, 120);
+    }
+
+
+    function kmBuildProgress(action, payload = {}) {
+      const t = types[state.currentIndex] || {};
+      const progressPercent = Math.round(((state.currentIndex || 0) / types.length) * 100);
+      return {
+        action,
+        progressPercent,
+        currentIndex: state.currentIndex,
+        currentType: t.type ?? null,
+        category: t.category || '',
+        isFraction: Boolean(t.isFraction),
+        attempt: payload.attempt ?? state.attempts ?? 0,
+        streak: state.streak ?? 0,
+        totalTypes: types.length,
+        correct: payload.correct ?? null,
+        answer: payload.answer ?? null,
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    async function kmFetchAllowedNames() {
+      if (!KM_CONFIG.VALIDATE_ALLOWED_NAMES) {
+        return { mode: 'disabled', rows: [] };
+      }
+
+      // Die Namensprüfung wird nur aktiv, wenn für GENAU DIESE Lernaktivität
+      // mindestens ein aktiver Name in allowed_names gespeichert ist.
+      const appName = KM_CONFIG.APP_NAME;
+      const url = `${KM_CONFIG.SUPABASE_URL}/rest/v1/allowed_names?select=student_name,name_key&app_name=eq.${encodeURIComponent(appName)}&active=eq.true&limit=5000`;
+
+      try {
+        const res = await fetch(url, {
+          headers: {
+            'apikey': KM_CONFIG.SUPABASE_KEY,
+            'Authorization': `Bearer ${KM_CONFIG.SUPABASE_KEY}`,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          console.warn('[KlassenMonitor] Namensliste nicht verfügbar. Anmeldung bleibt offen:', res.status, errText);
+          return { mode: 'open_no_table_or_policy', rows: [] };
+        }
+
+        const rows = await res.json();
+
+        if (!Array.isArray(rows) || rows.length === 0) {
+          return { mode: 'open_no_names_for_this_app', rows: [] };
+        }
+
+        return { mode: 'locked_names_for_this_app', rows };
+      } catch(e) {
+        console.warn('[KlassenMonitor] Namensprüfung nicht möglich. Anmeldung bleibt offen:', e);
+        return { mode: 'open_fetch_error', rows: [] };
+      }
+    }
+
+    async function kmValidateStudentName(studentName) {
+      const result = await kmFetchAllowedNames();
+
+      // Keine Namen für diese konkrete Lernaktivität gespeichert:
+      // Anmeldung ist offen.
+      if (!result || !result.rows || result.rows.length === 0) {
+        return { ok:true, mode: result?.mode || 'open' };
+      }
+
+      const key = kmSlugify(studentName);
+      const match = result.rows.some(r => {
+        const studentNameKey = kmSlugify(r.student_name || '');
+        const storedKey = String(r.name_key || '').trim();
+        return studentNameKey === key || storedKey === key;
+      });
+
+      return {
+        ok: match,
+        mode: result.mode,
+        allowedCount: result.rows.length
+      };
+    }
+
+    async function kmSendAction(action, payload = {}) {
+      if (!kmTracker.started || !kmTracker.sessionId) return;
+
+      const url = `${KM_CONFIG.SUPABASE_URL}/rest/v1/active_sessions?on_conflict=session_id`;
+      const progress = kmBuildProgress(action, payload);
+      const body = {
+        session_id: kmTracker.sessionId,
+        client_id: kmTracker.clientId,
+        app_name: KM_CONFIG.APP_NAME,
+        student_name: kmTracker.studentName || null,
+        last_seen: new Date().toISOString(),
+        action: kmShortAction(action, payload),
+        progress: progress,
+        progress_percent: progress.progressPercent,
+        current_type: progress.currentType,
+        current_category: progress.category,
+        streak: progress.streak,
+        attempt: progress.attempt
+      };
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'apikey': KM_CONFIG.SUPABASE_KEY,
+            'Authorization': `Bearer ${KM_CONFIG.SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates,return=minimal'
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          // Fallback: Falls die neuen Fortschritts-Spalten noch nicht in Supabase angelegt sind,
+          // wird zumindest der normale KlassenMonitor-Ping ohne Zusatzfelder gesendet.
+          if (errText.includes('progress') || errText.includes('progress_percent') || errText.includes('current_type') || errText.includes('streak') || errText.includes('attempt')) {
+            const fallbackBody = {
+              session_id: body.session_id,
+              client_id: body.client_id,
+              app_name: body.app_name,
+              student_name: body.student_name,
+              last_seen: body.last_seen,
+              action: body.action
+            };
+            const fallbackRes = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'apikey': KM_CONFIG.SUPABASE_KEY,
+                'Authorization': `Bearer ${KM_CONFIG.SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'resolution=merge-duplicates,return=minimal'
+              },
+              body: JSON.stringify(fallbackBody)
+            });
+            if (!fallbackRes.ok) {
+              const fallbackErr = await fallbackRes.text().catch(() => '');
+              console.error('[KlassenMonitor] Supabase-Fallback-Fehler:', fallbackRes.status, fallbackErr);
+            }
+          } else {
+            console.error('[KlassenMonitor] Supabase-Fehler:', res.status, errText);
+          }
+        } else {
+          console.debug('[KlassenMonitor] Aktion gesendet:', body.action, kmTracker.sessionId, kmTracker.studentName);
+        }
+      } catch (e) {
+        console.error('[KlassenMonitor] Ping-Fehler:', e);
+      }
+    }
+
+    async function kmSendLeave() {
+      if (!kmTracker.started || !kmTracker.sessionId) return;
+      const url = `${KM_CONFIG.SUPABASE_URL}/rest/v1/active_sessions?session_id=eq.${encodeURIComponent(kmTracker.sessionId)}`;
+
+      try {
+        const res = await fetch(url, {
+          method: 'PATCH',
+          headers: {
+            'apikey': KM_CONFIG.SUPABASE_KEY,
+            'Authorization': `Bearer ${KM_CONFIG.SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            last_seen: '2000-01-01T00:00:00Z',
+            action: 'leave'
+          }),
+          keepalive: true
+        });
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          console.error('[KlassenMonitor] Leave-Fehler:', res.status, errText);
+        }
+      } catch (e) {
+        console.error('[KlassenMonitor] Leave-Fehler:', e);
+      }
+    }
+
+    function kmStartTracker(studentName) {
+      kmTracker.studentName = String(studentName || '').trim();
+      window.KM_STUDENT_NAME = kmTracker.studentName;
+      localStorage.setItem(KM_CONFIG.STORAGE_NAME, kmTracker.studentName);
+
+      kmTracker.clientId = localStorage.getItem(KM_CONFIG.STORAGE_CLIENT_ID);
+      if (!kmTracker.clientId) {
+        kmTracker.clientId = kmCreateId();
+        localStorage.setItem(KM_CONFIG.STORAGE_CLIENT_ID, kmTracker.clientId);
+      }
+
+      kmTracker.sessionId = 'sess_' + kmSlugify(KM_CONFIG.APP_NAME) + '_' + kmTracker.clientId;
+      kmTracker.started = true;
+
+      if (kmTracker.intervalId) clearInterval(kmTracker.intervalId);
+      kmSendAction('ping');
+      kmTracker.intervalId = setInterval(() => {
+        if (!document.hidden) kmSendAction('ping');
+      }, KM_CONFIG.PING_INTERVAL_MS);
+
+      console.log(`[KlassenMonitor] Tracker aktiv → App: "${KM_CONFIG.APP_NAME}" | Schüler: "${kmTracker.studentName || '—'}" | Client: ${kmTracker.clientId} | Session: ${kmTracker.sessionId}`);
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (kmTracker.leaveTimer) clearTimeout(kmTracker.leaveTimer);
+      kmSendLeave();
+      if (kmTracker.intervalId) clearInterval(kmTracker.intervalId);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!kmTracker.started) return;
+      if (document.hidden) {
+        kmTracker.leaveTimer = setTimeout(() => kmSendLeave(), 5000);
+      } else {
+        if (kmTracker.leaveTimer) {
+          clearTimeout(kmTracker.leaveTimer);
+          kmTracker.leaveTimer = null;
+        }
+        kmSendAction('ping');
+      }
+    });
+
+    function tracking(eventName, payload = {}){
+      const event = {
+        event: eventName,
+        username: state.username,
+        timestamp: new Date().toISOString(),
+        taskType: types[state.currentIndex]?.type,
+        payload
+      };
+      state.trackingQueue.push(event);
+
+      // Für das KlassenMonitor-Dashboard wird der aktuelle Status in active_sessions.action aktualisiert.
+      kmSendAction(eventName, {
+        ...payload,
+        taskType: event.taskType,
+        currentIndex: state.currentIndex,
+        streak: state.streak,
+        attempt: state.attempts,
+        progressPercent: Math.round(((state.currentIndex || 0) / types.length) * 100)
+      });
+      console.debug("Tracking:", event);
+    }
+
+    function render(){
+      const t = types[state.currentIndex];
+      if(!t){
+        $("equation").innerHTML = "Geschafft!";
+        $("feedback").className = "feedback good";
+        $("feedback").innerHTML = "Du hast alle verpflichtenden Aufgabentypen geschafft.";
+        tracking("finished", {progressPercent:100});
+        return;
+      }
+
+      state.currentTask = t.generator();
+      state.attempts = 0;
+
+      $("typeNo").textContent = t.type;
+      $("attemptNo").textContent = "1/2";
+      $("streakNo").textContent = `${state.streak}/2`;
+      const progress = Math.round((state.currentIndex / types.length) * 100);
+      $("doneNo").textContent = progress + "%";
+      $("progressBar").style.width = progress + "%";
+      $("equation").innerHTML = state.currentTask.eq;
+      setTextIfExists("categoryBadge", t.category);
+      setClassIfExists("categoryBadge", "badge" + (t.isFraction ? " fraction" : ""));
+      setTextIfExists("requiredInfo", t.isFraction ? "freiwillig / überspringbar" : "Pflichtaufgabe");
+      $("skipPanel").className = "skip-panel" + (t.isFraction ? " show" : "");
+      $("feedback").className = "feedback";
+      $("feedback").textContent = "";
+      $("solution").className = "solution";
+      $("solution").innerHTML = "";
+      $("answerInput").value = "";
+      openNumberPad();
+      updateMenuProgress();
+      save();
+      tracking("task_shown", {equation: state.currentTask.eq, category:t.category, isFraction:t.isFraction});
+    }
+
+    function updateMenuProgress(){
+      $("menuProgress").innerHTML =
+        `Name: <b>${state.username || "—"}</b><br>` +
+        `Aktueller Typ: <b>${types[state.currentIndex]?.type || "fertig"}</b> von 145<br>` +
+        `Richtig in Folge beim Typ: <b>${state.streak}/2</b>`;
+    }
+
+    function nextType(){
+      tracking("type_completed", {});
+      state.currentIndex++;
+      state.streak = 0;
+      if(state.currentIndex >= types.length){
+        $("equation").innerHTML = "Training beendet";
+        $("feedback").className = "feedback good";
+        $("feedback").innerHTML = "Stark! Alle Aufgabentypen bis 145 wurden bearbeitet.";
+        $("answerInput").disabled = true;
+        closeNumberPad();
+        tracking("finished", {});
+        save();
+        return;
+      }
+      render();
+    }
+
+    function checkAnswer(e){
+      e.preventDefault();
+      const val = parseAnswer($("answerInput").value);
+      if(!Number.isFinite(val)){
+        $("feedback").className = "feedback bad";
+        $("feedback").textContent = "Bitte gib eine Zahl ein. Beispiele: 4, -3, 1,5 oder 3/4.";
+        return;
+      }
+
+      state.attempts++;
+      $("attemptNo").textContent = `${Math.min(state.attempts+1,2)}/2`;
+
+      const ok = Math.abs(val - state.currentTask.ans) < 0.0001;
+      tracking("answer_checked", {
+        answer: $("answerInput").value,
+        parsedAnswer: val,
+        correctAnswer: state.currentTask.ans,
+        correct: ok,
+        attempt: state.attempts
+      });
+
+      if(ok){
+        state.streak++;
+        $("streakNo").textContent = `${state.streak}/2`;
+        $("feedback").className = "feedback good";
+        $("feedback").textContent = state.streak >= 2
+          ? "Richtig! Zwei Aufgaben dieses Typs in Folge geschafft. Der nächste Typ wird geladen."
+          : "Richtig! Noch eine Aufgabe dieses Typs richtig lösen, dann geht es weiter.";
+        save();
+
+        setTimeout(()=>{
+          if(state.streak >= 2){
+            state.totalSolvedTypes++;
+            nextType();
+          }else{
+            render();
+          }
+        }, 900);
+        return;
+      }
+
+      state.streak = 0;
+      $("streakNo").textContent = "0/2";
+
+      if(state.attempts < 2){
+        $("feedback").className = "feedback bad";
+        $("feedback").textContent = "Noch nicht richtig. Du hast noch einen zweiten Versuch.";
+        openNumberPad();
+        save();
+      }else{
+        $("feedback").className = "feedback info";
+        $("feedback").textContent = "Zweiter Versuch vorbei. Die Lösung wird angezeigt. Danach kommt eine neue Variante dieses Typs.";
+        $("solution").className = "solution show";
+        $("solution").innerHTML = state.currentTask.solution;
+        save();
+        setTimeout(()=>render(), 2600);
+      }
+    }
+
+    function skipFraction(){
+      const t = types[state.currentIndex];
+      if(!t?.isFraction) return;
+      tracking("fraction_skipped", {type:t.type, category:t.category});
+      state.currentIndex++;
+      state.streak = 0;
+      render();
+    }
+
+    function openMenu(){
+      $("drawer").classList.add("open");
+      $("overlay").classList.add("show");
+      updateMenuProgress();
+    }
+
+    function closeMenu(){
+      $("drawer").classList.remove("open");
+      $("overlay").classList.remove("show");
+    }
+
+    function initQR(){
+      const url = location.href;
+      $("currentUrlText").textContent = url;
+      $("qrImg").src = "https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=" + encodeURIComponent(url);
+      $("qrBox").classList.toggle("show");
+    }
+
+    function calcInput(value){
+      const display = $("calcDisplay");
+      if(value === "C"){
+        display.value = "";
+        return;
+      }
+      if(value === "="){
+        try{
+          const expr = display.value.replace(/,/g,".").replace(/÷/g,"/").replace(/×/g,"*");
+          if(!/^[0-9+\-*/().\s]+$/.test(expr)) throw new Error("Ungültig");
+          const result = Function('"use strict"; return (' + expr + ')')();
+          display.value = fmtNum(result);
+        }catch(e){
+          display.value = "Fehler";
+          setTimeout(()=>display.value="",800);
+        }
+        return;
+      }
+      display.value += value;
+    }
+
+    function keepTaskAndInputVisible(){
+      const equationBox = document.querySelector(".equation-box");
+      const answerRow = document.querySelector(".answer-row");
+      if(!equationBox || !answerRow) return;
+
+      requestAnimationFrame(() => {
+        const eqRect = equationBox.getBoundingClientRect();
+        const rowRect = answerRow.getBoundingClientRect();
+        const padRect = $("numPad").getBoundingClientRect();
+        const visibleBottom = window.innerHeight - (padRect.height || 0) - 12;
+        const needsScroll = eqRect.top < 70 || rowRect.bottom > visibleBottom;
+
+        if(needsScroll){
+          equationBox.scrollIntoView({behavior:"smooth", block:"start"});
+        }
+      });
+    }
+
+    function openNumberPad(){
+      document.body.classList.add("keypad-open");
+      $("numPad").classList.add("open");
+      $("numPad").setAttribute("aria-hidden", "false");
+      document.body.classList.add("pad-open");
+      keepTaskAndInputVisible();
+    }
+
+    function closeNumberPad(){
+      document.body.classList.remove("keypad-open");
+      $("numPad").classList.remove("open");
+      $("numPad").setAttribute("aria-hidden", "true");
+      document.body.classList.remove("pad-open");
+    }
+
+    function insertAnswerChar(ch){
+      const input = $("answerInput");
+      if(input.disabled) return;
+      if(ch === "," && (input.value.includes(",") || input.value.includes("."))) return;
+      input.value += ch;
+      openNumberPad();
+    }
+
+    function toggleNegative(){
+      const input = $("answerInput");
+      if(input.disabled) return;
+      const v = input.value.trim();
+      input.value = v.startsWith("-") ? v.slice(1) : "-" + v;
+      openNumberPad();
+    }
+
+    function handleNumPadClick(e){
+      const btn = e.target.closest("button");
+      if(!btn) return;
+
+      const num = btn.dataset.num;
+      const action = btn.dataset.action;
+
+      if(num){
+        insertAnswerChar(num);
+        return;
+      }
+
+      if(action === "neg"){
+        toggleNegative();
+      }else if(action === "back"){
+        const input = $("answerInput");
+        input.value = input.value.slice(0, -1);
+        openNumberPad();
+      }else if(action === "clear"){
+        $("answerInput").value = "";
+        openNumberPad();
+      }else if(action === "submit"){
+        $("answerForm").requestSubmit();
+      }
+    }
+
+    $("answerInput").addEventListener("click", openNumberPad);
+    $("answerInput").addEventListener("focus", openNumberPad);
+    $("closePadBtn").addEventListener("click", closeNumberPad);
+    $("numPad").addEventListener("click", handleNumPadClick);
+
+    $("startBtn").addEventListener("click", async ()=>{
+      const name = $("usernameInput").value.trim();
+      const err = $("loginError");
+      if(err){
+        err.style.display = "none";
+        err.textContent = "";
+      }
+      if(!name){
+        $("usernameInput").focus();
+        return;
+      }
+
+      $("startBtn").disabled = true;
+      $("startBtn").textContent = "Prüfe Namen...";
+
+      const validation = await kmValidateStudentName(name);
+      if(!validation.ok){
+        if(err){
+          err.style.display = "block";
+          err.textContent = `Dieser Name ist für „${KM_CONFIG.APP_NAME}“ nicht freigegeben. Bitte genau den Namen oder das Kürzel aus der Lehrerliste verwenden.`;
+        }
+        $("startBtn").disabled = false;
+        $("startBtn").textContent = "Training starten";
+        $("usernameInput").focus();
+        $("usernameInput").select();
+        return;
+      }
+
+      state.username = name;
+      window.KM_STUDENT_NAME = name;
+      localStorage.setItem(KM_CONFIG.STORAGE_NAME, name);
+      kmStartTracker(name);
+      $("helloLine").textContent = `Hallo, ${name} – löse die Typen der Reihe nach.`;
+      load();
+      $("login").style.display = "none";
+      $("startBtn").disabled = false;
+      $("startBtn").textContent = "Training starten";
+      tracking("session_started", {nameValidation: validation.mode});
+      render();
+    });
+
+    $("usernameInput").addEventListener("keydown", e=>{
+      if(e.key === "Enter") $("startBtn").click();
+    });
+
+    $("answerForm").addEventListener("submit", checkAnswer);
+    $("skipBtn").addEventListener("click", skipFraction);
+    $("newVariantBtn").addEventListener("click", ()=>{
+      tracking("new_variant", {});
+      state.streak = 0;
+      render();
+    });
+
+    $("menuBtn").addEventListener("click", openMenu);
+    $("closeMenuBtn").addEventListener("click", closeMenu);
+    $("overlay").addEventListener("click", closeMenu);
+    $("showQrBtn").addEventListener("click", initQR);
+    $("toggleCalcBtn").addEventListener("click", ()=>{
+      $("calc").classList.toggle("show");
+      $("toggleCalcBtn").textContent = $("calc").classList.contains("show") ? "Taschenrechner schließen" : "Taschenrechner öffnen";
+    });
+
+    document.querySelectorAll("[data-calc]").forEach(btn=>{
+      btn.addEventListener("click", ()=>calcInput(btn.dataset.calc));
+    });
+
+    $("resetBtn").addEventListener("click", ()=>{
+      if(confirm("Soll der Fortschritt wirklich gelöscht werden?")){
+        localStorage.removeItem(storageKey());
+        state.currentIndex = 0;
+        state.streak = 0;
+        state.totalSolvedTypes = 0;
+        closeMenu();
+        render();
+      }
+    });
+  
+    // Hält Aufgabe, Eingabefeld und wichtige Buttons sichtbar, sobald das eigene Eingabefeld geöffnet ist.
+    function markKeypadOpen(){
+      document.body.classList.add("keypad-open");
+      const card = document.querySelector(".card");
+      if(card){
+        card.scrollIntoView({block:"start", behavior:"smooth"});
+      }
+    }
+
+    function markKeypadClosed(){
+      document.body.classList.remove("keypad-open");
+    }
+
+    const answerFieldForKeypad = $("answerInput");
+    if(answerFieldForKeypad){
+      answerFieldForKeypad.addEventListener("focus", markKeypadOpen);
+      answerFieldForKeypad.addEventListener("click", markKeypadOpen);
+    }
+
+    document.addEventListener("click", (ev)=>{
+      const target = ev.target;
+      if(!target) return;
+      const txt = (target.textContent || "").trim().toLowerCase();
+      const id = target.id || "";
+      const cls = target.className || "";
+
+      if(id === "answerInput"){
+        markKeypadOpen();
+      }
+
+      if(
+        txt === "schließen" ||
+        txt === "prüfen" ||
+        id.toLowerCase().includes("closekey") ||
+        String(cls).toLowerCase().includes("close-key")
+      ){
+        if(txt === "schließen"){
+          markKeypadClosed();
+        }
+      }
+    }, true);
+
+  </script>
+</body>
+</html>
