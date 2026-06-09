@@ -407,6 +407,86 @@
 
     .solution.show{display:block}
 
+
+    .solution-card{
+      display:none;
+      margin-top:14px;
+      border-radius:22px;
+      overflow:hidden;
+      border:2px solid #bfdbfe;
+      background:#ffffff;
+      box-shadow:0 14px 34px rgba(37,99,235,.12);
+    }
+    .solution-card.show{ display:block; }
+    .solution-head{
+      background:linear-gradient(135deg,#1d4ed8,#2563eb);
+      color:#fff;
+      padding:14px 16px;
+    }
+    .solution-head h3{
+      margin:0;
+      font-size:1.15rem;
+      letter-spacing:-.02em;
+    }
+    .solution-body{
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+    .solution-result{
+      background:#dcfce7;
+      color:#14532d;
+      border:1px solid #86efac;
+      border-radius:16px;
+      padding:14px;
+      font-size:1.25rem;
+      font-weight:900;
+      text-align:center;
+    }
+    .solution-steps{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      color:#334155;
+      line-height:1.55;
+    }
+    .solution-steps strong{ color:#0f172a; }
+    .solution-equation{
+      font-size:1.1rem;
+      font-weight:800;
+      text-align:center;
+      padding:10px;
+      border-radius:14px;
+      background:#eff6ff;
+      color:#1e3a8a;
+      overflow-wrap:anywhere;
+    }
+    .solution-next{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:0 14px 14px;
+    }
+    .solution-next button{ flex:1 1 220px; }
+    body.keypad-open .solution-card.show{
+      max-height:34dvh;
+      overflow:auto;
+    }
+    body.keypad-open .solution-body{
+      gap:8px;
+      padding:10px;
+    }
+    body.keypad-open .solution-head{ padding:10px 12px; }
+    body.keypad-open .solution-result{
+      padding:10px;
+      font-size:1.05rem;
+    }
+    body.keypad-open .solution-steps{
+      padding:10px;
+      font-size:.9rem;
+    }
+
     .overlay{
       position:fixed;
       inset:0;
@@ -859,6 +939,20 @@
       <div id="feedback" class="feedback"></div>
       <div id="solution" class="solution"></div>
 
+      <div id="solutionCard" class="solution-card" aria-live="polite">
+        <div class="solution-head">
+          <h3>So kommst du zur richtigen Lösung</h3>
+        </div>
+        <div class="solution-body">
+          <div class="solution-equation" id="solutionEquation"></div>
+          <div class="solution-result" id="solutionResult"></div>
+          <div class="solution-steps" id="solutionSteps"></div>
+        </div>
+        <div class="solution-next">
+          <button class="primary-btn" id="nextAfterSolutionBtn" type="button">Neue Aufgabe dieses Typs lösen</button>
+        </div>
+      </div>
+
       <div class="skip-panel" id="skipPanel">
         Dieser Aufgabentyp gehört zur Bruchrechnung. Du darfst ihn überspringen.
         <div class="controls">
@@ -966,6 +1060,77 @@
     function solveText(x){
       return `Lösung: x = ${fmtNum(x)}`;
     }
+
+
+    function buildSolutionHtml(rawSteps){
+      const steps = String(rawSteps || "")
+        .split(/(?:\.\s+|\n+)/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if(steps.length === 0){
+        return "<p><strong>Merke:</strong> Forme die Gleichung Schritt für Schritt um, bis x allein steht.</p>";
+      }
+
+      return "<ol>" + steps.map(s => `<li>${s.replace(/\.$/,"")}.</li>`).join("") + "</ol>";
+    }
+
+    function showFullSolution(){
+      closeNumberPad();
+      document.body.classList.remove("keypad-open");
+
+      const task = state.currentTask;
+      if(!task) return;
+
+      $("feedback").className = "feedback info";
+      $("feedback").textContent = "Zwei Versuche sind vorbei. Schau dir die Lösung in Ruhe an. Danach startest du selbst die nächste Aufgabe.";
+
+      $("solution").className = "solution";
+      $("solution").innerHTML = "";
+
+      $("solutionEquation").innerHTML = task.eq;
+      $("solutionResult").innerHTML = `Richtige Lösung: x = ${fmtNum(task.ans)}`;
+      $("solutionSteps").innerHTML = `
+        <p><strong>Lösungsweg:</strong></p>
+        ${buildSolutionHtml(task.solution)}
+        <p><strong>Probe:</strong> Setze x = ${fmtNum(task.ans)} in die Gleichung ein. Dann müssen linke und rechte Seite gleich sein.</p>
+      `;
+      $("solutionCard").className = "solution-card show";
+
+      $("answerInput").disabled = true;
+      const checkBtn = document.querySelector("#answerForm button[type='submit']");
+      if(checkBtn) checkBtn.disabled = true;
+      $("newVariantBtn").disabled = true;
+
+      tracking("solution_shown", {
+        correctAnswer: task.ans,
+        equation: task.eq,
+        attempt: state.attempts
+      });
+
+      setTimeout(() => {
+        $("solutionCard").scrollIntoView({behavior:"smooth", block:"nearest"});
+      }, 50);
+    }
+
+    function hideFullSolution(){
+      if(!$("solutionCard")) return;
+      $("solutionCard").className = "solution-card";
+      $("solutionEquation").innerHTML = "";
+      $("solutionResult").innerHTML = "";
+      $("solutionSteps").innerHTML = "";
+      $("answerInput").disabled = false;
+      const checkBtn = document.querySelector("#answerForm button[type='submit']");
+      if(checkBtn) checkBtn.disabled = false;
+      $("newVariantBtn").disabled = false;
+    }
+
+    function continueAfterSolution(){
+      hideFullSolution();
+      tracking("next_after_solution", {});
+      render();
+    }
+
 
     function parseAnswer(s){
       if(!s) return NaN;
@@ -1589,6 +1754,7 @@
         return;
       }
 
+      hideFullSolution();
       state.currentTask = t.generator();
       state.attempts = 0;
 
@@ -1688,12 +1854,8 @@
         openNumberPad();
         save();
       }else{
-        $("feedback").className = "feedback info";
-        $("feedback").textContent = "Zweiter Versuch vorbei. Die Lösung wird angezeigt. Danach kommt eine neue Variante dieses Typs.";
-        $("solution").className = "solution show";
-        $("solution").innerHTML = state.currentTask.solution;
+        showFullSolution();
         save();
-        setTimeout(()=>render(), 2600);
       }
     }
 
@@ -1816,7 +1978,7 @@
         $("answerInput").value = "";
         openNumberPad();
       }else if(action === "submit"){
-        $("answerForm").requestSubmit();
+        if(!$("answerInput").disabled) $("answerForm").requestSubmit();
       }
     }
 
@@ -1871,8 +2033,10 @@
     });
 
     $("answerForm").addEventListener("submit", checkAnswer);
+    $("nextAfterSolutionBtn").addEventListener("click", continueAfterSolution);
     $("skipBtn").addEventListener("click", skipFraction);
     $("newVariantBtn").addEventListener("click", ()=>{
+      hideFullSolution();
       tracking("new_variant", {});
       state.streak = 0;
       render();
